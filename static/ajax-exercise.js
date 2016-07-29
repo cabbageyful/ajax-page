@@ -18,13 +18,20 @@ $('#get-fortune-button').on('click', showFortune);
 
 
 // PART 2: SHOW WEATHER
+function parseWeatherResult(result){
+    //grab only the forecast part of the returned JSON
+    var forecast = result['forecast'];
+
+    //show the forecast in #weather-info
+    $('#weather-info').html(forecast);
+}
 
 function showWeather(evt) {
     evt.preventDefault();
 
-    var url = "/weather?zipcode=" + $("#zipcode-field").val();
+    var url = "/weather.json?zipcode=" + $("#zipcode-field").val();
+    $.get(url, parseWeatherResult );
 
-    // TODO: request weather with that URL and show the forecast in #weather-info
 }
 
 $("#weather-form").on('submit', showWeather);
@@ -37,8 +44,30 @@ $("#weather-form").on('submit', showWeather);
 function orderMelons(evt) {
     evt.preventDefault();
 
+    var formInputs = {
+        "qty": $('#qty-field').val(),
+        "melon_type": $('#melon-type-field').val()
+    };
+
+    console.log(formInputs);
+    
+    $.post('/order-melons.json', formInputs, orderStatus);
     // TODO: show the result message after your form
     // TODO: if the result code is ERROR, make it show up in red (see our CSS!)
+}
+
+function orderStatus(melons) {
+    var code = melons['code'];
+    var message = melons['msg'];
+
+    $('#order-status').html(message);
+
+    if (code === 'ERROR') {
+        $('#order-status').addClass('order-error');
+    } else {
+        $('#order-status').removeClass('order-error');
+    }
+
 }
 
 $("#order-form").on('submit', orderMelons);
